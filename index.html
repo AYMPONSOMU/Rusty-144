@@ -1,1 +1,131 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AYMPON COSMIC - Rusty 144</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+</head>
+<body>
 
+<script>
+    const config = {
+        type: Phaser.AUTO,
+        width: 450,
+        height: 800,
+        physics: {
+            default: 'arcade',
+            arcade: { gravity: { y: 0 }, debug: false }
+        },
+        scene: { preload: preload, create: create, update: update }
+    };
+
+    const game = new Phaser.Game(config);
+
+    let playerHand;
+    let rustyCharacter;
+    let sparks;
+    let cursors;
+    let score = 0;
+    let scoreText;
+    let spawnTimer;
+
+    function preload() {
+        // படங்கள் லோடு ஆகும் இடம்
+        this.load.image('background', 'images/cosmic-bg.png');
+        this.load.image('rusty', 'images/rusty.png');
+        this.load.image('hand', 'images/hand.png');
+        this.load.image('spark', 'images/spark.png');
+    }
+
+    function create() {
+        // 1. புதிய மொபைல் பின்னணி இமேஜ்
+        let bg = this.add.image(225, 400, 'background');
+        bg.setDisplaySize(450, 800);
+
+        // 2. ரஷ்டி பெண்ணுருவம் (திரையின் மேல் பகுதியில் அமரவைக்கப்பட்டுள்ளது)
+        rustyCharacter = this.add.image(225, 120, 'rusty');
+        rustyCharacter.setDisplaySize(180, 180);
+
+        // 3. பிளேயர் கை (கீழ் பகுதியில் நகரும்)
+        playerHand = this.physics.add.sprite(225, 720, 'hand');
+        playerHand.setCollideWorldBounds(true);
+        playerHand.setDisplaySize(90, 90);
+        playerHand.setImmovable(true);
+
+        // தீப்பொறிகள் குழு
+        sparks = this.physics.add.group();
+
+        // தீப்பொறி டைமர் (அதிவேகம்)
+        spawnTimer = this.time.addEvent({
+            delay: 300, 
+            callback: addSpark,
+            callbackScope: this,
+            loop: true
+        });
+
+        cursors = this.input.keyboard.createCursorKeys();
+        
+        // மொபைல் டச் கன்ட்ரோல்
+        this.input.on('pointermove', function (pointer) {
+            playerHand.x = Phaser.Math.Clamp(pointer.x, 45, 405);
+        });
+
+        scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '24px', fill: '#fff', fontFamily: 'Arial', stroke: '#000', strokeThickness: 4 });
+
+        this.physics.add.overlap(playerHand, sparks, collectSpark, null, this);
+    }
+
+    function update() {
+        if (cursors.left.isDown) {
+            playerHand.setVelocityX(-400);
+        } else if (cursors.right.isDown) {
+            playerHand.setVelocityX(400);
+        } else {
+            playerHand.setVelocityX(0);
+        }
+
+        sparks.getChildren().forEach(function(spark) {
+            if (spark.y > 850) {
+                spark.destroy();
+            }
+        });
+    }
+
+    function addSpark() {
+        // ரஷ்டியின் கை இருக்கும் தோராயமான இடது/வலது ரேண்டம் பொசிஷன்
+        let randomX = Phaser.Math.Between(150, 300);
+        
+        // ரஷ்டியின் கையில் இருந்து தீப்பொறி கிளம்பும் (y: 150)
+        let spark = sparks.create(randomX, 150, 'spark');
+        spark.setDisplaySize(25, 25);
+        
+        // கீழ்நோக்கி விழும் வேகம்
+        let randomVelocity = Phaser.Math.Between(450, 700);
+        spark.setVelocityY(randomVelocity);
+    }
+
+    function collectSpark(hand, spark) {
+        spark.destroy();
+        score += 10;
+        scoreText.setText('Score: ' + score);
+    }
+</script>
+
+</body>
+</html>
