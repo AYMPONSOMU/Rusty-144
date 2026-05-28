@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AYMPON COSMIC - Rusty's Attack</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <style>
         body { margin: 0; background-color: #000; overflow: hidden; }
         canvas { display: block; margin: 0 auto; }
@@ -13,14 +13,14 @@
 <body>
 
 <script>
-// Game Configuration
+// கேம் செட்டிங்ஸ்
 const config = {
     type: Phaser.AUTO,
-    width: window.innerWidth > 500 ? 450 : window.innerWidth, // Perfect for Mobile
+    width: window.innerWidth > 500 ? 450 : window.innerWidth, // மொபைலுக்கு ஏற்ற அளவு
     height: window.innerHeight,
     physics: {
         default: 'arcade',
-        arcade: { gravity: { y: 0 }, debug: false }
+        arcade: { gravity: { y: 0 }, debug: false } // நெருப்பு பொறிகள் விழ இயற்பியல் விதி
     },
     scene: { preload: preload, create: create, update: update }
 };
@@ -37,95 +37,93 @@ let stageText;
 let spawnTimer;
 
 function preload() {
-    // Fixed paths for GitHub Pages compatibility
+    // 1. GitHub Pages-க்காக இமேஜ் பாதைகள் (Paths) மட்டும் `./` நீக்கப்பட்டு மாற்றப்பட்டுள்ளது
     this.load.image('background', 'images/cosmic-bg.png'); 
-    this.load.image('rusty', 'images/rusty.png'); 
-    this.load.image('hand', 'images/hand.png'); 
-    this.load.image('spark', 'images/spark.png'); 
+    this.load.image('rusty', 'images/rusty.png'); // ரஷ்டி உருவம்
+    this.load.image('hand', 'images/hand.png'); // கீழே உள்ள கை
+    this.load.image('spark', 'images/spark.png'); // நெருப்புப் பொறி
 }
 
 function create() {
-    // Responsive Background
-    let bg = this.add.image(config.width/2, config.height/2, 'background');
-    bg.setDisplaySize(config.width, config.height);
+    // பின்னணி
+    this.add.image(config.width/2, config.height/2, 'background').setDisplaySize(config.width, config.height);
 
-    // Rusty Character at the top
-    rusty = this.add.image(config.width / 2, 120, 'rusty');
-    rusty.setDisplaySize(160, 160);
+    // ரஷ்டி (மேலே இருப்பார்)
+    rusty = this.physics.add.sprite(config.width / 2, 80, 'rusty').setScale(0.15);
+    rusty.setImmovable(true);
 
-    // Cosmic Hand at the bottom
-    cosmicHand = this.physics.add.sprite(config.width / 2, config.height - 100, 'hand');
+    // காஸ்மிக் கை (கீழே இருக்கும் - நகர்த்த முடியும்)
+    cosmicHand = this.physics.add.sprite(config.width / 2, config.height - 100, 'hand').setScale(0.2);
     cosmicHand.setCollideWorldBounds(true);
-    cosmicHand.setDisplaySize(90, 90);
-    cosmicHand.setImmovable(true);
 
-    // Smooth Mobile Touch Controls
+    // கையை மௌஸ் அல்லது தொடுதல் (Touch) மூலம் நகர்த்த
     this.input.on('pointermove', function (pointer) {
-        cosmicHand.x = Phaser.Math.Clamp(pointer.x, 45, config.width - 45);
+        cosmicHand.x = pointer.x;
     });
 
-    // Sparks Group
+    // நெருப்புப் பொறிகள் குரூப்
     fireSparks = this.physics.add.group();
 
-    // Set Stage Difficulty
+    // குறிப்பிட்ட நேரத்திற்கு ஒருமுறை நெருப்புப் பொறிகளை ரஷ்டி வெளியிடுவார்
     setStageDifficulty.call(this);
 
-    // English Score & Stage UI
-    scoreText = this.add.text(20, 20, '⚡ Score: 0', { fontSize: '22px', fill: '#00ffff', fontFamily: 'Arial', fontWeight: 'bold', stroke: '#000', strokeThickness: 4 });
-    stageText = this.add.text(config.width - 160, 20, '🪐 Stage: 1/12', { fontSize: '22px', fill: '#ffd700', fontFamily: 'Arial', fontWeight: 'bold', stroke: '#000', strokeThickness: 4 });
+    // ஸ்கோர் மற்றும் ஸ்டேஜ் விபரம்
+    scoreText = this.add.text(20, 20, '⚡ Score: 0', { fontSize: '20px', fill: '#00ffff', fontFamily: 'Arial' });
+    stageText = this.add.text(config.width - 150, 20, '🪐 Stage: 1/12', { fontSize: '20px', fill: '#ffd700', fontFamily: 'Arial' });
 
-    // Collision Setup
+    // கொலிஷன் (Collision) - கை நெருப்புப் பொறிகளை அழித்தால் பாய்ண்ட்
     this.physics.add.overlap(cosmicHand, fireSparks, destroySpark, null, this);
 }
 
 function update() {
-    // Check for missed sparks
+    // நெருப்புப் பொறிகள் கையைத் தாண்டி கீழே விழுந்தால் (Miss ஆனால்) - கேம் ஓவர் / ரீஸ்டார்ட்
     fireSparks.getChildren().forEach(spark => {
-        if (spark.y > config.height + 20) {
+        if (spark.y > config.height) {
             spark.destroy();
-            gameOver.call(this); // Trigger Game Over if missed
+            gameOver.call(this); // மிஸ்ஸானால் மீண்டும் கேம் ஸ்டேஜ் ஆரம்பம்
         }
     });
 }
 
+// நெருப்புப் பொறிகளை உருவாக்கும் பங்க்ชั่น
 function dropSpark() {
-    // Spark spawns from Rusty's current position
-    let spark = fireSparks.create(rusty.x, 150, 'spark');
-    spark.setDisplaySize(25, 25);
+    // ரஷ்டி இருக்கும் இடத்திலிருந்து நெருப்புப் பொறி கிளம்பும்
+    let spark = fireSparks.create(rusty.x, rusty.y + 30, 'spark').setScale(0.08);
     
-    // Speed increases as stages progress
-    let speed = 400 + (currentStage * 35); 
+    // நிலைக்கு (Stage) தகுந்தாற்போல் வேகம் மாறும்
+    let speed = 200 + (currentStage * 40); 
     spark.setVelocityY(speed);
     
-    // From Stage 2 onwards, Rusty moves randomly to make it challenging
+    // 2-வது நிலைக்கு மேல் ரஷ்டி அங்கும் இங்கும் நகர்வார் (தடை கடினமாகும்)
     if (currentStage >= 2) {
-        rusty.x = Phaser.Math.Between(80, config.width - 80);
+        rusty.x = Phaser.Math.Between(50, config.width - 50);
     }
 }
 
+// கையில் பட்டு நெருப்புப் பொறி அழிந்தால்
 function destroySpark(hand, spark) {
     spark.destroy();
     score += 10;
     scoreText.setText('⚡ Score: ' + score);
 
-    // Advance stage every 100 points
+    // ஒவ்வொரு 100 பாய்ண்ட்டுக்கும் அடுத்த ஸ்டேஜ் (12 நிலைகள் வரை)
     if (score % 100 === 0 && currentStage < 12) {
         currentStage++;
         stageText.setText('🪐 Stage: ' + currentStage + '/12');
         setStageDifficulty.call(this);
     } else if (score >= 1200 && currentStage === 12) {
-        // Ultimate Victory Notification in English
+        // ஆங்கிலத்தில் மாற்றப்பட்ட வெற்றி பாப்-அப் (Popup) மெசேஜ்
         this.scene.pause();
-        alert("🎉 Congratulations! You have cleared all 12 Cosmic Stages. Get ready to claim your $AYMP Tokens!");
-        window.location.href = "claim-token.html"; 
+        alert("🎉 Excellent! You have cleared all 12 Cosmic Stages. Get ready to claim your $AYMP Tokens!");
+        window.location.href = "claim-token.html"; // டோக்கன் ரிவார்டு பக்கம்
     }
 }
 
+// ஸ்டேஜிற்கு ஏற்ப நெருப்புப் பொறிகள் வரும் வேகத்தை மாற்றுதல்
 function setStageDifficulty() {
     if (spawnTimer) spawnTimer.destroy();
     
-    // Decreasing delay makes sparks spawn faster
-    let delay = Math.max(1200 - (currentStage * 80), 300); 
+    let delay = Math.max(1500 - (currentStage * 100), 400); // போகப் போக வேகமாக பொறிகள் வரும்
     spawnTimer = this.time.addEvent({
         delay: delay,
         callback: dropSpark,
@@ -134,10 +132,11 @@ function setStageDifficulty() {
     });
 }
 
+// மிஸ்ஸானால் மீண்டும் அதே ஸ்டேஜ் ஆரம்பம்
 function gameOver() {
-    // English Game Over Notification
+    // ஆங்கிலத்தில் மாற்றப்பட்ட கேம் ஓவர் பாப்-அப் (Popup) மெசேஜ்
     alert("❌ Spark Missed! Restarting this stage from the beginning.");
-    score = (currentStage - 1) * 100; // Reset score to the beginning of current stage
+    score = (currentStage - 1) * 100; // அந்த ஸ்டேஜின் ஆரம்ப ஸ்கோருக்கு கொண்டு செல்லுதல்
     scoreText.setText('⚡ Score: ' + score);
     this.scene.restart();
 }
