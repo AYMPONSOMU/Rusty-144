@@ -94,8 +94,8 @@ function dropSpark() {
     let speed = 200 + (currentStage * 40); 
     spark.setVelocityY(speed);
     
-    // 8-வது நிலைக்கு மேல் ரஷ்டி அங்கும் இங்கும் நகர்வார் (தடை கடினமாகும்)
-    if (currentStage >= 8) {
+    // 2-வது நிலைக்கு மேல் ரஷ்டி அங்கும் இங்கும் நகர்வார் (தடை கடினமாகும்)
+    if (currentStage >= 2) {
         rusty.x = Phaser.Math.Between(50, config.width - 50);
     }
 }
