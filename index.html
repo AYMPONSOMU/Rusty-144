@@ -8,13 +8,54 @@
     <style>
         body { margin: 0; background-color: #000; overflow: hidden; }
         canvas { display: block; margin: 0 auto; }
+
+        /* ℹ️ வட்ட வடிவ பட்டன் - லோகோவுக்குக் கீழே, இடது பக்கத்தில் கச்சிதமாக மாற்றப்பட்டுள்ளது */
+        .about-btn {
+            position: absolute; 
+            top: 140px; /* கீழே இறக்கப்பட்டுள்ளது */
+            left: 20px; 
+            width: 38px; /* அளவு சிறியதாக்கப்பட்டுள்ளது */
+            height: 38px; 
+            background: linear-gradient(135deg, #ffd700, #ff8c00); 
+            color: #000; 
+            font-weight: bold; 
+            border: 2px solid #fff; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            z-index: 10; 
+            font-size: 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* அபௌட் விபரங்கள் பாப்-அப் */
+        .about-modal {
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 85%; 
+            max-width: 360px; 
+            background: rgba(10, 10, 25, 0.95); 
+            border: 3px solid #00ffff; 
+            border-radius: 15px; 
+            color: #fff; 
+            padding: 20px; 
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.7); 
+            z-index: 20; 
+            text-align: center; 
+            font-family: Arial, sans-serif;
+        }
     </style>
 </head>
 <body>
 
-<button style="position: absolute; top: 15px; left: 15px; width: 45px; height: 45px; background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; font-weight: bold; border: 2px solid #fff; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);" onclick="openAbout()">ℹ️</button>
+<button class="about-btn" onclick="openAbout()">ℹ️</button>
 
-<div id="aboutModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 360px; background: rgba(10, 10, 25, 0.95); border: 3px solid #00ffff; border-radius: 15px; color: #fff; padding: 20px; box-shadow: 0 0 25px rgba(0, 255, 255, 0.7); z-index: 20; text-align: center; font-family: Arial, sans-serif;">
+<div id="aboutModal" class="about-modal">
     <h2 style="color: #ffd700; margin-top: 0; font-size: 22px;">🪐 AYMPON COSMIC</h2>
     <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">Welcome to <b>Rusty's Attack (Stage 144)</b>, an elite astro-strategic cosmic challenge powered by the <b>AYMPONSOMU ASTRO-STRATEGIC Global Council</b>.</p>
     <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">In this cosmic realm, you control the Sacred Hand to catch the high-velocity fire sparks unleashed by Rusty. Anticipate the planetary speed shifts through 12 intense levels of difficulty.</p>
@@ -23,7 +64,7 @@
 </div>
 
 <script>
-// கேம் செட்டிங்ஸ் (உங்களின் அசல் அளவுகள் அப்படியே வைக்கப்பட்டுள்ளது)
+// கேம் செட்டிங்ஸ் (உங்களின் அசல் அளவுகள் அப்படியே)
 const config = {
     type: Phaser.AUTO,
     width: window.innerWidth > 500 ? 450 : window.innerWidth, 
@@ -47,10 +88,10 @@ let stageText;
 let spawnTimer;
 
 function preload() {
-    this.load.image('background', 'images/cosmic-bg.png'); 
-    this.load.image('rusty', 'images/rusty.png'); 
-    this.load.image('hand', 'images/hand.png'); 
-    this.load.image('spark', 'images/spark.png'); 
+    this.load.image('background', './images/cosmic-bg.png'); 
+    this.load.image('rusty', './images/rusty.png'); 
+    this.load.image('hand', './images/hand.png'); 
+    this.load.image('spark', './images/spark.png'); 
 }
 
 function create() {
@@ -69,8 +110,9 @@ function create() {
     fireSparks = this.physics.add.group();
     setStageDifficulty.call(this);
 
-    scoreText = this.add.text(20, 20, '⚡ Score: 0', { fontSize: '20px', fill: '#00ffff', fontFamily: 'Arial' });
-    stageText = this.add.text(config.width - 150, 20, '🪐 Stage: 1/12', { fontSize: '20px', fill: '#ffd700', fontFamily: 'Arial' });
+    // 🎯 ஸ்கோர் மற்றும் ஸ்டேஜ் விபரங்கள் லோகோவுக்குக் கீழே (y: 145) மற்றும் அளவில் சிறியதாக (fontSize: '15px') மாற்றப்பட்டுள்ளது
+    scoreText = this.add.text(config.width - 120, 140, '⚡ Score: 0', { fontSize: '15px', fill: '#00ffff', fontFamily: 'Arial', fontWeight: 'bold' });
+    stageText = this.add.text(config.width - 120, 160, '🪐 Stage: 1/12', { fontSize: '15px', fill: '#ffd700', fontFamily: 'Arial', fontWeight: 'bold' });
 
     this.physics.add.overlap(cosmicHand, fireSparks, destroySpark, null, this);
 }
@@ -128,7 +170,6 @@ function gameOver() {
     this.scene.restart();
 }
 
-// 🌐 பாப்-அப் வேலை செய்வதற்கான ஃபங்க்ஷன்கள்
 function openAbout() {
     document.getElementById("aboutModal").style.display = "block";
     if(game) game.scene.pause('default'); 
