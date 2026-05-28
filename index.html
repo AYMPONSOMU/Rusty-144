@@ -147,7 +147,6 @@ function gameOver() {
     scoreText.setText('⚡ Score: ' + score);
     this.scene.restart();
 }
-</script>
 // 🌐 Popup Controller Functions
 function openAbout() {
     document.getElementById("aboutModal").style.display = "block";
@@ -157,6 +156,8 @@ function openAbout() {
 function closeAbout() {
     document.getElementById("aboutModal").style.display = "none";
     if(game) game.scene.resume('default'); // மூடும் போது கேம் மீண்டும் தொடங்கும்
-}
+}    
+</script>
+
 </body>
 </html>
