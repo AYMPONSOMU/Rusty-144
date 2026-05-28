@@ -11,7 +11,15 @@
     </style>
 </head>
 <body>
+<button style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); padding: 6px 12px; background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; font-weight: bold; border: 2px solid #fff; border-radius: 20px; cursor: pointer; z-index: 10; font-size: 13px;" onclick="openAbout()">ℹ️ About Game</button>
 
+<div id="aboutModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 360px; background: rgba(10, 10, 25, 0.95); border: 3px solid #00ffff; border-radius: 15px; color: #fff; padding: 20px; box-shadow: 0 0 25px rgba(0, 255, 255, 0.7); z-index: 20; text-align: center; font-family: Arial, sans-serif;">
+    <h2 style="color: #ffd700; margin-top: 0; font-size: 22px;">🪐 AYMPON COSMIC</h2>
+    <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">Welcome to <b>Rusty's Attack (Stage 144)</b>, an elite astro-strategic cosmic challenge powered by the <b>AYMPONSOMU ASTRO-STRATEGIC Global Council</b>.</p>
+    <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">In this cosmic realm, you control the Sacred Hand to catch the high-velocity fire sparks unleashed by Rusty. Anticipate the planetary speed shifts through 12 intense levels of difficulty.</p>
+    <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">Conquer all 12 stages to prove your strategic focus and unlock your ultimate digital asset rewards page to claim your <b>$AYMP Tokens</b>.</p>
+    <button style="background: #ff3333; color: white; border: none; padding: 8px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;" onclick="closeAbout()">Close</button>
+</div>
 <script>
 // கேம் செட்டிங்ஸ்
 const config = {
@@ -140,6 +148,15 @@ function gameOver() {
     this.scene.restart();
 }
 </script>
+// 🌐 Popup Controller Functions
+function openAbout() {
+    document.getElementById("aboutModal").style.display = "block";
+    if(game) game.scene.pause('default'); // பாப்-அப் திறக்கும் போது கேம் தற்காலிகமாக நிற்கும்
+}
 
+function closeAbout() {
+    document.getElementById("aboutModal").style.display = "none";
+    if(game) game.scene.resume('default'); // மூடும் போது கேம் மீண்டும் தொடங்கும்
+}
 </body>
 </html>
