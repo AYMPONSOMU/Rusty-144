@@ -9,12 +9,12 @@
         body { margin: 0; background-color: #000; overflow: hidden; }
         canvas { display: block; margin: 0 auto; }
 
-        /* ℹ️ வட்ட வடிவ பட்டன் - லோகோவுக்குக் கீழே, இடது பக்கத்தில் கச்சிதமாக மாற்றப்பட்டுள்ளது */
+        /* ℹ️ வட்ட வடிவ பட்டன் - லோகோவுக்குக் கீழே கச்சிதமாக உள்ளது */
         .about-btn {
             position: absolute; 
-            top: 140px; /* கீழே இறக்கப்பட்டுள்ளது */
+            top: 140px; 
             left: 20px; 
-            width: 38px; /* அளவு சிறியதாக்கப்பட்டுள்ளது */
+            width: 38px; 
             height: 38px; 
             background: linear-gradient(135deg, #ffd700, #ff8c00); 
             color: #000; 
@@ -58,13 +58,13 @@
 <div id="aboutModal" class="about-modal">
     <h2 style="color: #ffd700; margin-top: 0; font-size: 22px;">🪐 AYMPON COSMIC</h2>
     <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">Welcome to <b>Rusty's Attack (Stage 144)</b>, an elite astro-strategic cosmic challenge powered by the <b>AYMPONSOMU ASTRO-STRATEGIC Global Council</b>.</p>
-    <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">In this cosmic realm, you control the Sacred Hand to catch the high-velocity fire sparks unleashed by Rusty. Anticipate the planetary speed shifts through 12 intense levels of difficulty.</p>
-    <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">Conquer all 12 stages to prove your strategic focus and unlock your ultimate digital asset rewards page to claim your <b>$AYMP Tokens</b>.</p>
+    <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">In this cosmic realm, control the Sacred Hand to catch the high-velocity fire sparks unleashed by Rusty from Stages 1 to 12. Survive the heat to unlock the mysterious <b>Waterfall Realm</b> from Stages 13 to 24.</p>
+    <p style="font-size: 14px; line-height: 1.5; text-align: justify; margin-bottom: 15px;">Conquer all 24 stages to prove your ultimate strategic focus and unlock your reward page to claim your Mega <b>$AYMP Tokens</b>.</p>
     <button style="background: #ff3333; color: white; border: none; padding: 8px 20px; font-weight: bold; border-radius: 5px; cursor: pointer;" onclick="closeAbout()">Close</button>
 </div>
 
 <script>
-// கேம் செட்டிங்ஸ் (உங்களின் அசல் அளவுகள் அப்படியே)
+// கேம் செட்டிங்ஸ்
 const config = {
     type: Phaser.AUTO,
     width: window.innerWidth > 500 ? 450 : window.innerWidth, 
@@ -91,7 +91,8 @@ function preload() {
     this.load.image('background', './images/cosmic-bg.png'); 
     this.load.image('rusty', './images/rusty.png'); 
     this.load.image('hand', './images/hand.png'); 
-    this.load.image('spark', './images/spark.png'); 
+    this.load.image('spark', './images/spark.png'); // 1-12 ஸ்டேஜிற்கான தீப்பொறி
+    this.load.image('waterdrop', './images/waterdrop.png'); // 13-24 ஸ்டேஜிற்கான நீர்த்துளி 🌊
 }
 
 function create() {
@@ -110,9 +111,9 @@ function create() {
     fireSparks = this.physics.add.group();
     setStageDifficulty.call(this);
 
-    // 🎯 ஸ்கோர் மற்றும் ஸ்டேஜ் விபரங்கள் லோகோவுக்குக் கீழே (y: 145) மற்றும் அளவில் சிறியதாக (fontSize: '15px') மாற்றப்பட்டுள்ளது
+    // 24 நிலைகளாக மாற்றப்பட்டுள்ளது
     scoreText = this.add.text(config.width - 120, 140, '⚡ Score: 0', { fontSize: '15px', fill: '#00ffff', fontFamily: 'Arial', fontWeight: 'bold' });
-    stageText = this.add.text(config.width - 120, 160, '🪐 Stage: 1/12', { fontSize: '15px', fill: '#ffd700', fontFamily: 'Arial', fontWeight: 'bold' });
+    stageText = this.add.text(config.width - 120, 160, '🪐 Stage: 1/24', { fontSize: '15px', fill: '#ffd700', fontFamily: 'Arial', fontWeight: 'bold' });
 
     this.physics.add.overlap(cosmicHand, fireSparks, destroySpark, null, this);
 }
@@ -126,13 +127,28 @@ function update() {
     });
 }
 
+// தீப்பொறி மற்றும் வாட்டர்பால் உருவாக்கும் பகுதி
 function dropSpark() {
-    let spark = fireSparks.create(rusty.x, rusty.y + 30, 'spark').setScale(0.08);
-    let speed = 200 + (currentStage * 40); 
+    let elementKey = 'spark'; // Default தீப்பொறி
+    let currentScale = 0.08;
+
+    // 🎯 சுவாரஸ்ய திருப்பம்: 13-வது ஸ்டேஜிற்கு மேல் வாட்டர்பால் ஆக மாறும்!
+    if (currentStage > 12) {
+        elementKey = 'waterdrop';
+        currentScale = 0.12; // நீர்த்துளிக்கு ஏற்ற அளவு
+    }
+
+    let spark = fireSparks.create(rusty.x, rusty.y + 30, elementKey).setScale(currentScale);
+    
+    // நிலைக்கு தகுந்த வேகம்
+    let speed = 200 + (currentStage * 38); 
     spark.setVelocityY(speed);
     
+    // ரஷ்டி நகரும் அசுர வேகம்
     if (currentStage >= 2) {
-        rusty.x = Phaser.Math.Between(50, config.width - 50);
+        let minX = currentStage > 12 ? 30 : 50; 
+        let maxX = currentStage > 12 ? config.width - 30 : config.width - 50;
+        rusty.x = Phaser.Math.Between(minX, maxX);
     }
 }
 
@@ -141,20 +157,37 @@ function destroySpark(hand, spark) {
     score += 10;
     scoreText.setText('⚡ Score: ' + score);
 
-    if (score % 100 === 0 && currentStage < 12) {
+    // 24 நிலைகள் வரை நீட்டிக்கப்பட்டுள்ளது
+    if (score % 100 === 0 && currentStage < 24) {
         currentStage++;
-        stageText.setText('🪐 Stage: ' + currentStage + '/12');
+        stageText.setText('🪐 Stage: ' + currentStage + '/24');
+
+        // 13-வது ஸ்டேஜ் வரும்போது ஸ்பெஷல் அலர்ட்!
+        if (currentStage === 13) {
+            this.scene.pause();
+            alert("🌊 AMAZING! You entered the WATERFALL REALM! Catch the heavy waterdrops now!");
+            this.scene.resume();
+        }
+
         setStageDifficulty.call(this);
-    } else if (score >= 1200 && currentStage === 12) {
+    } else if (score >= 2400 && currentStage === 24) {
+        // 24 நிலைகளையும் முடித்தால் மாபெரும் வெற்றி
         this.scene.pause();
-        alert("🎉 Excellent! You have cleared all 12 Cosmic Stages. Get ready to claim your $AYMP Tokens!");
+        alert("🎉 Congratulations! Ultimate Cosmic Champion! You have conquered all 24 Stages. Get ready to claim your Mega $AYMP Tokens!");
         window.location.href = "claim-token.html"; 
     }
 }
 
 function setStageDifficulty() {
     if (spawnTimer) spawnTimer.destroy();
+    
     let delay = Math.max(1500 - (currentStage * 100), 400); 
+
+    // 🌊 வாட்டர்பால் ஸ்டேஜ்களில் பொறிகள் விழும் இடைவெளி நேரம் மிக வேகமாக (Waterfall Effect) இருக்கும்
+    if (currentStage > 12) {
+        delay = Math.max(700 - (currentStage * 20), 250); // அருவி போல மிகத் தொடர்ச்சியாக விழும்
+    }
+
     spawnTimer = this.time.addEvent({
         delay: delay,
         callback: dropSpark,
@@ -164,7 +197,13 @@ function setStageDifficulty() {
 }
 
 function gameOver() {
-    alert("❌ Spark Missed! Restarting this stage from the beginning.");
+    // தீம்-க்கு தகுந்த கேம் ஓவர் மெசேஜ்
+    if (currentStage > 12) {
+        alert("❌ Waterdrop Missed! Restarting this stage from the beginning.");
+    } else {
+        alert("❌ Spark Missed! Restarting this stage from the beginning.");
+    }
+    
     score = (currentStage - 1) * 100; 
     scoreText.setText('⚡ Score: ' + score);
     this.scene.restart();
